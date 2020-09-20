@@ -1,6 +1,10 @@
+mod statement;
+
 use std::io;
 use std::io::Write;
 use std::process;
+
+use crate::statement::Statement;
 
 /// Entry point for interactive mode.
 fn main() {
@@ -9,8 +13,13 @@ fn main() {
         print_prompt();
         match read_input() {
             Ok(value) => {
-                if value.chars().next() == Some('.') {
-                    handle_meta_command(value.trim());
+                let text = value.trim();
+                if text.chars().next() == Some('.') {
+                    handle_meta_command(text);
+                }
+                match Statement::parse(text) {
+                    Ok(statement) => statement.execute(),
+                    Err(err) => eprintln!("{}", err),
                 }
             },
             Err(err) => {
