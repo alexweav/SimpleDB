@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fmt;
 
-use crate::table::Row;
+use crate::row::Row;
 
 #[derive(Debug, Clone)]
 struct ParseError {
