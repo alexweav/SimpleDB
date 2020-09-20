@@ -1,6 +1,8 @@
 use std::error::Error;
 use std::fmt;
 
+use crate::table::Row;
+
 #[derive(Debug, Clone)]
 struct ParseError {
     message: String,
@@ -15,14 +17,14 @@ impl fmt::Display for ParseError {
 impl Error for ParseError {}
 
 pub enum Statement {
-    Insert,
+    Insert(Row),
     Select,
 }
 
 impl Statement {
     pub fn parse(text: &str) -> Result<Statement, Box<dyn Error>> {
         if text.starts_with("insert") {
-            Ok(Statement::Insert)
+            Ok(Statement::Insert(Row::new(0, "abc", "def")))
         } else if text.starts_with("select") {
             Ok(Statement::Select)
         } else {
@@ -34,8 +36,10 @@ impl Statement {
 
     pub fn execute(&self) {
         match self {
-            Statement::Insert => println!("Insert"),
+            Statement::Insert(row) => println!("Insert {}", row),
             Statement::Select => println!("Select"),
         }
     }
 }
+
+
