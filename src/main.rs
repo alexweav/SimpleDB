@@ -8,7 +8,11 @@ fn main() {
     loop {
         print_prompt();
         match read_input() {
-            Ok(value) => handle_command(value.trim()),
+            Ok(value) => {
+                if value.chars().next() == Some('.') {
+                    handle_meta_command(value.trim());
+                }
+            },
             Err(err) => {
                 eprintln!("error: {:?}", err);
                 process::exit(1);
@@ -18,7 +22,7 @@ fn main() {
 }
 
 /// Metacommand handler for interactive mode.
-fn handle_command(input: &str) {
+fn handle_meta_command(input: &str) {
     if input == ".exit" {
         println!("bye");
         process::exit(0);
