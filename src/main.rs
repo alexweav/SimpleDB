@@ -22,7 +22,7 @@ fn main() {
                     Ok(statement) => statement.execute(),
                     Err(err) => eprintln!("{}", err),
                 }
-            },
+            }
             Err(err) => {
                 eprintln!("error: {:?}", err);
                 process::exit(1);
