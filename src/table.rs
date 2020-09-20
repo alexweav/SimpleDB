@@ -1,4 +1,5 @@
 use std::fmt;
+use std::str;
 
 pub const USERNAME_COLUMN_WIDTH: usize = 32;
 pub const EMAIL_COLUMN_WIDTH: usize = 255;
@@ -19,11 +20,25 @@ impl Row {
         };
         row
     }
+
+    pub fn get_username(&self) -> &str {
+        str::from_utf8(&self.username).unwrap()
+    }
+
+    pub fn get_email(&self) -> &str {
+        str::from_utf8(&self.email).unwrap()
+    }
 }
 
 impl fmt::Display for Row {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.id)
+        write!(
+            f,
+            "{} {} {}",
+            self.id,
+            self.get_username(),
+            self.get_email()
+        )
     }
 }
 
