@@ -10,6 +10,8 @@ pub const ID_COLUMN_WIDTH: usize = std::mem::size_of::<u32>();
 pub const USERNAME_OFFSET: usize = ID_OFFSET + ID_COLUMN_WIDTH;
 pub const EMAIL_OFFSET: usize = USERNAME_OFFSET + USERNAME_COLUMN_WIDTH;
 
+pub const ROW_SIZE: usize = ID_COLUMN_WIDTH + USERNAME_COLUMN_WIDTH + EMAIL_COLUMN_WIDTH;
+
 #[derive(Debug)]
 pub struct Row {
     pub id: u32,
@@ -45,7 +47,7 @@ impl Row {
         destination[EMAIL_OFFSET..EMAIL_OFFSET+EMAIL_COLUMN_WIDTH].copy_from_slice(&self.email);
     }
 
-    pub fn deserialize(&self, destination: &[u8]) -> Row {
+    pub fn deserialize(destination: &[u8]) -> Row {
         let id = u32::from_ne_bytes(destination[ID_OFFSET..ID_OFFSET+ID_COLUMN_WIDTH].try_into().unwrap());
         let mut username = vec![0; USERNAME_COLUMN_WIDTH];
         username[..USERNAME_COLUMN_WIDTH].copy_from_slice(&destination[USERNAME_OFFSET..USERNAME_OFFSET+USERNAME_COLUMN_WIDTH]);

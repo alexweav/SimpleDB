@@ -2,6 +2,7 @@ use std::error::Error;
 use std::fmt;
 
 use crate::row::Row;
+use crate::table::Table;
 
 #[derive(Debug, Clone)]
 struct ParseError {
@@ -47,10 +48,19 @@ impl Statement {
         }
     }
 
-    pub fn execute(&self) {
+    pub fn execute(&self, table: &mut Table) {
         match self {
-            Statement::Insert(row) => println!("Inserted {}", row),
-            Statement::Select => println!("Select"),
+            Statement::Insert(row) => {
+                let row_slot = table.row_slot(table.num_rows);
+                row.serialize(row_slot);
+                table.num_rows += 1;
+            },
+            Statement::Select => {
+                for i in 0..table.num_rows {
+                    let row_slot = table.row_slot(i);
+                    println!("{}", Row::deserialize(row_slot));
+                }
+            }
         }
     }
 }

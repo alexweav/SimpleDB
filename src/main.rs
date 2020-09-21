@@ -12,7 +12,7 @@ use crate::table::Table;
 /// Entry point for interactive mode.
 fn main() {
     println!("Welcome to SimpleDB!");
-    let _ = Table::new();
+    let mut table = Table::new();
     loop {
         print_prompt();
         match read_input() {
@@ -22,7 +22,7 @@ fn main() {
                     handle_meta_command(text);
                 }
                 match Statement::parse(text) {
-                    Ok(statement) => statement.execute(),
+                    Ok(statement) => statement.execute(&mut table),
                     Err(err) => eprintln!("{}", err),
                 }
             }
