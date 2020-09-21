@@ -7,10 +7,12 @@ use std::io::Write;
 use std::process;
 
 use crate::statement::Statement;
+use crate::table::Table;
 
 /// Entry point for interactive mode.
 fn main() {
     println!("Welcome to SimpleDB!");
+    let _ = Table::new();
     loop {
         print_prompt();
         match read_input() {
