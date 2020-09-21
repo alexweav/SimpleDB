@@ -1,51 +1,35 @@
-use std::fmt;
-use std::str;
+use crate::row;
 
-pub const USERNAME_COLUMN_WIDTH: usize = 32;
-pub const EMAIL_COLUMN_WIDTH: usize = 255;
+const TABLE_MAX_PAGES: usize = 256;
+const PAGE_SIZE: usize = 4096;
+const ROWS_PER_PAGE: usize = PAGE_SIZE / row::ROW_SIZE;
 
-#[derive(Debug)]
-pub struct Row {
-    pub id: u32,
-    pub username: Vec<u8>,
-    pub email: Vec<u8>,
+/// A table in the database.
+pub struct Table {
+    /// The number of rows in the table.
+    pub num_rows: usize,
+    /// An in-memory page table storing the data.
+    /// Each element is a memory page, containing contiguously mapped and packed rows.
+    pages: Vec<Vec<u8>>,
 }
 
-impl Row {
-    pub fn new(id: u32, username: &str, email: &str) -> Row {
-        let row = Row {
-            id: id,
-            username: prefill_string_column(username, USERNAME_COLUMN_WIDTH),
-            email: prefill_string_column(email, EMAIL_COLUMN_WIDTH),
-        };
-        row
+impl Table {
+    /// Instantiates an empty table.
+    pub fn new() -> Table {
+        Table {
+            num_rows: 0,
+            pages: vec![Vec::new(); TABLE_MAX_PAGES],
+        }
     }
 
-    pub fn get_username(&self) -> &str {
-        str::from_utf8(&self.username).unwrap()
+    /// Gives a slice of the memory-mapped page table corresponding to a specific row.
+    pub fn row_slot(&mut self, row_num: usize) -> &mut [u8] {
+        let page_num = row_num / ROWS_PER_PAGE;
+        if self.pages[page_num].is_empty() {
+            self.pages[page_num] = vec![0; PAGE_SIZE];
+        }
+        let row_offset = row_num % ROWS_PER_PAGE;
+        let byte_offset = row_offset * row::ROW_SIZE;
+        &mut self.pages[page_num][byte_offset..]
     }
-
-    pub fn get_email(&self) -> &str {
-        str::from_utf8(&self.email).unwrap()
-    }
-}
-
-impl fmt::Display for Row {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{} {} {}",
-            self.id,
-            self.get_username(),
-            self.get_email()
-        )
-    }
-}
-
-fn prefill_string_column(value: &str, size: usize) -> Vec<u8> {
-    let mut column_data = vec![0; size];
-    // TODO: handle when value is too long for the buffer
-    // TODO: remember that utf8 graphemes may span multiple bytes
-    column_data[..value.len()].copy_from_slice(value.as_bytes());
-    column_data
 }
