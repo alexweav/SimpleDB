@@ -1,35 +1,39 @@
+use crate::pager;
 use crate::row;
 
-const TABLE_MAX_PAGES: usize = 256;
-const PAGE_SIZE: usize = 4096;
-const ROWS_PER_PAGE: usize = PAGE_SIZE / row::ROW_SIZE;
+const ROWS_PER_PAGE: usize = pager::PAGE_SIZE / row::ROW_SIZE;
 
 /// A table in the database.
 pub struct Table {
     /// The number of rows in the table.
     pub num_rows: usize,
-    /// An in-memory page table storing the data.
-    /// Each element is a memory page, containing contiguously mapped and packed rows.
-    pages: Vec<Vec<u8>>,
+    pager: pager::Pager,
 }
 
 impl Table {
     /// Instantiates an empty table.
-    pub fn new() -> Table {
-        Table {
+    pub fn new(filename: &str) -> Table {
+        /*Table {
             num_rows: 0,
-            pages: vec![Vec::new(); TABLE_MAX_PAGES],
+            pages: vec![Vec::new(); pager::TABLE_MAX_PAGES],
+        }*/
+        let pager = pager::Pager::open(filename).unwrap();
+        let num_rows = pager.file_length / row::ROW_SIZE;
+        Table {
+            num_rows: num_rows,
+            pager: pager,
         }
     }
 
     /// Gives a slice of the memory-mapped page table corresponding to a specific row.
     pub fn row_slot(&mut self, row_num: usize) -> &mut [u8] {
         let page_num = row_num / ROWS_PER_PAGE;
-        if self.pages[page_num].is_empty() {
+        /*if self.pages[page_num].is_empty() {
             self.pages[page_num] = vec![0; PAGE_SIZE];
-        }
+        }*/
+        let page = self.pager.get_page(page_num);
         let row_offset = row_num % ROWS_PER_PAGE;
         let byte_offset = row_offset * row::ROW_SIZE;
-        &mut self.pages[page_num][byte_offset..]
+        &mut page[byte_offset..]
     }
 }
