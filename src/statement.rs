@@ -88,3 +88,44 @@ fn parse_insert(text: &str) -> Result<Statement, Box<dyn Error>> {
         .ok_or(ParseError::from_str("Field missing from row: \"email\""))?;
     Ok(Statement::Insert(Row::new(id, username, email)))
 }
+
+#[cfg(test)]
+mod tests {
+    use std::iter;
+
+    use crate::row::Row;
+    use crate::statement::Statement;
+    use crate::table::Table;
+
+    #[test]
+    fn inserts_and_retrieves_row() {
+        let mut table = Table::new();
+        let statement = Statement::parse("insert 0 abc def").unwrap();
+        statement.execute(&mut table);
+
+        assert_eq!(table.num_rows, 1);
+
+        let row_slot = table.row_slot(0);
+        let row = Row::deserialize(row_slot);
+        assert_eq!(row.id, 0);
+        assert_eq!(row.get_username(), "abc");
+        assert_eq!(row.get_email(), "def");
+    }
+
+    #[test]
+    fn inserts_max_length_strings() {
+        let mut table = Table::new();
+        let long_username = &iter::repeat("a").take(32).collect::<String>();
+        let long_email = &iter::repeat("a").take(255).collect::<String>();
+        let row = Row::new(0, long_username, long_email);
+
+        let row_slot = table.row_slot(table.num_rows);
+        row.serialize(row_slot);
+        table.num_rows += 1;
+
+        let row_slot = table.row_slot(0);
+        let row = Row::deserialize(row_slot);
+        assert_eq!(row.get_username(), long_username);
+        assert_eq!(row.get_email(), long_email);
+    }
+}
