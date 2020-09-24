@@ -94,16 +94,14 @@ mod tests {
     use std::iter;
 
     use crate::row::Row;
+    use crate::statement::Statement;
     use crate::table::Table;
 
     #[test]
     fn inserts_and_retrieves_row() {
         let mut table = Table::new();
-        let row = Row::new(0, "abc", "def");
-
-        let row_slot = table.row_slot(table.num_rows);
-        row.serialize(row_slot);
-        table.num_rows += 1;
+        let statement = Statement::parse("insert 0 abc def").unwrap();
+        statement.execute(&mut table);
 
         assert_eq!(table.num_rows, 1);
 
