@@ -88,3 +88,27 @@ fn parse_insert(text: &str) -> Result<Statement, Box<dyn Error>> {
         .ok_or(ParseError::from_str("Field missing from row: \"email\""))?;
     Ok(Statement::Insert(Row::new(id, username, email)))
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::row::Row;
+    use crate::table::Table;
+
+    #[test]
+    fn inserts_and_retrieves_row() {
+        let mut table = Table::new();
+        let row = Row::new(0, "abc", "def");
+
+        let row_slot = table.row_slot(table.num_rows);
+        row.serialize(row_slot);
+        table.num_rows += 1;
+
+        assert_eq!(table.num_rows, 1);
+
+        let row_slot = table.row_slot(0);
+        let row = Row::deserialize(row_slot);
+        assert_eq!(row.id, 0);
+        assert_eq!(row.get_username(), "abc");
+        assert_eq!(row.get_email(), "def");
+    }
+}

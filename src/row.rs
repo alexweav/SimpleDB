@@ -19,10 +19,10 @@ pub struct Row {
     pub id: u32,
 
     // A hypothetical username.
-    pub username: Vec<u8>,
+    username: Vec<u8>,
 
     // A hypothetical email.
-    pub email: Vec<u8>,
+    email: Vec<u8>,
 }
 
 impl Row {
@@ -38,12 +38,16 @@ impl Row {
 
     /// Parses the username as a UTF-8 string.
     pub fn get_username(&self) -> &str {
-        str::from_utf8(&self.username).unwrap()
+        str::from_utf8(&self.username)
+            .unwrap()
+            .trim_matches(char::from(0))
     }
 
     /// Parses the email as a UTF-8 string.
     pub fn get_email(&self) -> &str {
-        str::from_utf8(&self.email).unwrap()
+        str::from_utf8(&self.email)
+            .unwrap()
+            .trim_matches(char::from(0))
     }
 
     /// Serializes the row into a contiguous block of memory.
