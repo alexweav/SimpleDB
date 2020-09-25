@@ -1,3 +1,4 @@
+mod pager;
 mod row;
 mod statement;
 mod table;
@@ -12,7 +13,7 @@ use crate::table::Table;
 /// Entry point for interactive mode.
 fn main() {
     println!("Welcome to SimpleDB!");
-    let mut table = Table::new();
+    let mut table = Table::new("table.db");
     loop {
         print_prompt();
         match read_input() {
@@ -31,6 +32,7 @@ fn main() {
                 process::exit(1);
             }
         };
+        table.flush();
     }
 }
 
