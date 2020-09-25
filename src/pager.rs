@@ -14,6 +14,7 @@ pub struct Pager {
 }
 
 impl Pager {
+    /// Opens the pager on a specified file.
     pub fn open(filename: &str) -> std::io::Result<Pager> {
         let file = fs::OpenOptions::new()
             .create(true)
@@ -55,5 +56,14 @@ impl Pager {
         }
 
         &mut self.pages[page_num]
+    }
+
+    /// Flushes an in-memory page to disk.
+    pub fn flush(&mut self, page_num: usize) {
+        // TODO: if self.pages[page_num].is_empty(), panic, can't flush null page
+        self.file
+            .seek(io::SeekFrom::Start(page_num as u64 * PAGE_SIZE as u64))
+            .unwrap();
+        self.file.write(&self.pages[page_num]).unwrap();
     }
 }

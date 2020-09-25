@@ -37,3 +37,9 @@ impl Table {
         &mut page[byte_offset..]
     }
 }
+
+/*impl Drop for Table {
+    fn drop (&mut self) {
+        let num_full_pages = self.num_rows / ROWS_PER_PAGE;
+    }
+}*/
