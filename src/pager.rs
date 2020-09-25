@@ -60,7 +60,9 @@ impl Pager {
 
     /// Flushes an in-memory page to disk.
     pub fn flush(&mut self, page_num: usize) {
-        // TODO: if self.pages[page_num].is_empty(), panic, can't flush null page
+        if self.pages[page_num].is_empty() {
+            return;
+        }
         self.file
             .seek(io::SeekFrom::Start(page_num as u64 * PAGE_SIZE as u64))
             .unwrap();

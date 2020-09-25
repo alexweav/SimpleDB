@@ -99,7 +99,7 @@ mod tests {
 
     #[test]
     fn inserts_and_retrieves_row() {
-        let mut table = Table::new();
+        let mut table = Table::new("test.db");
         let statement = Statement::parse("insert 0 abc def").unwrap();
         statement.execute(&mut table);
 
@@ -114,7 +114,7 @@ mod tests {
 
     #[test]
     fn inserts_max_length_strings() {
-        let mut table = Table::new();
+        let mut table = Table::new("test.db");
         let long_username = &iter::repeat("a").take(32).collect::<String>();
         let long_email = &iter::repeat("a").take(255).collect::<String>();
         let row = Row::new(0, long_username, long_email);
