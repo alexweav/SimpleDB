@@ -1,3 +1,4 @@
+mod cursor;
 mod pager;
 mod row;
 mod statement;

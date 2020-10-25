@@ -1,3 +1,4 @@
+use crate::cursor;
 use crate::pager;
 use crate::row;
 
@@ -21,8 +22,9 @@ impl Table {
         }
     }
 
-    /// Gives a slice of the memory-mapped page table corresponding to a specific row.
-    pub fn row_slot(&mut self, row_num: usize) -> &mut [u8] {
+    /// Gives a slice of the memory-mapped page table corresponding to a cursor.
+    pub fn cursor_value(&mut self, cursor: &cursor::Cursor) -> &mut [u8] {
+        let row_num = cursor.row_num;
         let page_num = row_num / ROWS_PER_PAGE;
         let page = self.pager.get_page(page_num);
         let row_offset = row_num % ROWS_PER_PAGE;

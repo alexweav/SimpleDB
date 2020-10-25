@@ -1,6 +1,7 @@
 use std::error::Error;
 use std::fmt;
 
+use crate::cursor;
 use crate::row::Row;
 use crate::table::Table;
 
@@ -58,14 +59,17 @@ impl Statement {
     pub fn execute(&self, table: &mut Table) {
         match self {
             Statement::Insert(row) => {
-                let row_slot = table.row_slot(table.num_rows);
+                let cursor = cursor::Cursor::end(&table);
+                let row_slot = table.cursor_value(&cursor);
                 row.serialize(row_slot);
                 table.num_rows += 1;
             }
             Statement::Select => {
-                for i in 0..table.num_rows {
-                    let row_slot = table.row_slot(i);
-                    println!("{}", Row::deserialize(row_slot));
+                let mut cursor = cursor::Cursor::start(&table);
+                while !cursor.end_of_table {
+                    let row = table.cursor_value(&cursor);
+                    println!("{}", Row::deserialize(row));
+                    cursor.advance(table);
                 }
             }
         }
@@ -93,6 +97,7 @@ fn parse_insert(text: &str) -> Result<Statement, Box<dyn Error>> {
 mod tests {
     use std::iter;
 
+    use crate::cursor::Cursor;
     use crate::row::Row;
     use crate::statement::Statement;
     use crate::table::Table;
@@ -105,8 +110,9 @@ mod tests {
 
         assert_eq!(table.num_rows, 1);
 
-        let row_slot = table.row_slot(0);
-        let row = Row::deserialize(row_slot);
+        let cursor = Cursor::start(&table);
+        let row = table.cursor_value(&cursor);
+        let row = Row::deserialize(row);
         assert_eq!(row.id, 0);
         assert_eq!(row.get_username(), "abc");
         assert_eq!(row.get_email(), "def");
@@ -119,11 +125,13 @@ mod tests {
         let long_email = &iter::repeat("a").take(255).collect::<String>();
         let row = Row::new(0, long_username, long_email);
 
-        let row_slot = table.row_slot(table.num_rows);
+        let cursor = Cursor::end(&table);
+        let row_slot = table.cursor_value(&cursor);
         row.serialize(row_slot);
         table.num_rows += 1;
 
-        let row_slot = table.row_slot(0);
+        let cursor = Cursor::start(&table);
+        let row_slot = table.cursor_value(&cursor);
         let row = Row::deserialize(row_slot);
         assert_eq!(row.get_username(), long_username);
         assert_eq!(row.get_email(), long_email);
