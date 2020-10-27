@@ -45,7 +45,7 @@ impl LeafNode {
     pub fn get_num_cells(&self) -> u32 {
         let value_region = &self.data
             [LEAF_NODE_NUM_CELLS_OFFSET..LEAF_NODE_NUM_CELLS_OFFSET + LEAF_NODE_NUM_CELLS_SIZE];
-        return u32::from_ne_bytes(value_region.try_into().unwrap());
+        u32::from_ne_bytes(value_region.try_into().unwrap())
     }
 
     pub fn set_num_cells(&mut self, num_cells: u32) {
@@ -56,14 +56,14 @@ impl LeafNode {
 
     pub fn leaf_node_cell(&mut self, cell_num: u32) -> &mut [u8] {
         let cell_offset = LEAF_NODE_HEADER_SIZE + (cell_num as usize * LEAF_NODE_CELL_SIZE);
-        return &mut self.data[cell_offset..cell_offset + LEAF_NODE_CELL_SIZE];
+        &mut self.data[cell_offset..cell_offset + LEAF_NODE_CELL_SIZE]
     }
 
     pub fn leaf_node_key(&mut self, cell_num: u32) -> &mut [u8] {
-        return &mut self.leaf_node_cell(cell_num)[0..LEAF_NODE_KEY_SIZE];
+        &mut self.leaf_node_cell(cell_num)[0..LEAF_NODE_KEY_SIZE]
     }
 
     pub fn leaf_node_value(&mut self, cell_num: u32) -> &mut [u8] {
-        return &mut self.leaf_node_cell(cell_num)[LEAF_NODE_KEY_SIZE..];
+        &mut self.leaf_node_cell(cell_num)[LEAF_NODE_KEY_SIZE..]
     }
 }

@@ -33,16 +33,8 @@ impl Table {
     }
 
     pub fn flush(&mut self) {
-        let num_nonempty_pages = self.num_rows / ROWS_PER_PAGE;
-        for page_idx in 0..num_nonempty_pages {
+        for page_idx in 0..self.pager.get_num_pages() {
             self.pager.flush(page_idx);
-        }
-
-        // There may be a partial page to write at the end of the file.
-        let num_additional_rows = self.num_rows % ROWS_PER_PAGE;
-        if num_additional_rows > 0 {
-            let page_num = num_nonempty_pages;
-            self.pager.flush(page_num);
         }
     }
 }

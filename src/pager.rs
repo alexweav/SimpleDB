@@ -58,6 +58,11 @@ impl Pager {
         &mut self.pages[page_num]
     }
 
+    /// Gets the total number of nonempty pages.
+    pub fn get_num_pages(&self) -> usize {
+        self.pages.iter().filter(|&page| !page.is_empty()).count()
+    }
+
     /// Flushes an in-memory page to disk.
     pub fn flush(&mut self, page_num: usize) {
         if self.pages[page_num].is_empty() {
